@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { RefreshCcw, Send, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { RefreshCcw, Send, AlertCircle, CheckCircle2, Clock, Brain } from "lucide-react";
 
 interface ClockResult {
   status: "success" | "fail";
@@ -27,7 +27,7 @@ export default function ClockDrawingTest() {
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.lineWidth = 4;
-    ctx.strokeStyle = "#000000";
+    ctx.strokeStyle = "#1a2e1d"; // ใช้สีเข้มเพื่อให้ตัดกับพื้นหลังขาว
   }, []);
 
   const getCoordinates = (e: any) => {
@@ -71,11 +71,8 @@ export default function ClockDrawingTest() {
   const saveDrawing = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     setIsLoading(true);
     setResult(null);
-
-    // ส่งเฉพาะสิ่งที่วาดใน Canvas (จุด Guide ใน CSS จะไม่ติดไป)
     const image = canvas.toDataURL("image/png");
 
     try {
@@ -96,37 +93,61 @@ export default function ClockDrawingTest() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
-      <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+    <div className="min-h-screen bg-white py-12 px-4">
+      <div className="max-w-xl mx-auto">
         
-        {/* Header */}
-        <div className="bg-indigo-600 p-6 text-white text-center">
-          <Clock className="w-12 h-12 mx-auto mb-2 opacity-90" />
-          <h2 className="text-2xl font-bold">แบบทดสอบวาดนาฬิกา</h2>
-          <p className="text-indigo-100 text-sm mt-1">Clock Drawing Test (CDT)</p>
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <h1 className="fw-bold mb-2" style={{ color: 'var(--color-1)', fontSize: '2rem' }}>
+            NeuralyzeFit CDT
+          </h1>
+          <p className="text-muted">แบบทดสอบวาดนาฬิกาเพื่อประเมินการทำงานของสมอง</p>
         </div>
 
-        <div className="p-6">
+        <div className="card card-custom p-6 p-lg-8 bg-white shadow-lg">
           {/* Instructions */}
-          <div className="mb-6 text-center">
-            <p className="text-slate-600 mb-2 font-medium">
-              กรุณาวาดหน้าปัดนาฬิกา พร้อมเข็มบอกเวลา
-            </p>
-            <div className="inline-block bg-indigo-50 px-6 py-2 rounded-full font-mono text-3xl font-bold text-indigo-700 border border-indigo-100">
+          <div className="mb-8 text-center">
+            <h5 className="fw-semibold mb-3 text-dark">คำสั่ง: วาดหน้าปัดนาฬิกาที่กำหนด</h5>
+            <div className="d-inline-flex px-5 py-3 rounded-4 font-monospace shadow-sm"
+                 style={{ 
+                   fontSize: '2.5rem', 
+                   fontWeight: '800', 
+                   backgroundColor: '#f8faf9', 
+                   color: 'var(--color-3)',
+                   border: '2px dashed var(--color-3)' 
+                 }}>
               11:10 น.
             </div>
           </div>
 
-          {/* Canvas Container with Guide Center */}
-          <div className="relative flex justify-center mb-6">
-            {/* Guide Center Dot (Pure CSS - ไม่ถูกส่งไป Back-end) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-slate-300 rounded-full pointer-events-none z-0 opacity-50"></div>
+          {/* Drawing Area */}
+          <div className="d-flex justify-content-center align-items-center mb-8 position-relative" style={{ height: "320px" }}>
             
+            {/* 1. Guide Dot Overlay - ใช้ Grid สั่งให้อยู่กึ่งกลางเป๊ะ */}
+            <div className="position-absolute d-grid" style={{ width: "320px", height: "320px", placeItems: "center", pointerEvents: "none" }}>
+              <div 
+                className="rounded-circle opacity-25"
+                style={{ 
+                  width: "10px", 
+                  height: "10px", 
+                  backgroundColor: "var(--color-3)",
+                  zIndex: 0
+                }}
+              ></div>
+            </div>
+            
+            {/* 2. Canvas - ต้องตั้ง z-index ให้สูงกว่าแต่พื้นหลังห้ามบังจุด */}
             <canvas
               ref={canvasRef}
               width={320}
               height={320}
-              className="relative z-10 border-2 border-slate-200 rounded-full bg-transparent shadow-inner cursor-crosshair touch-none"
+              className="position-relative border-2 rounded-circle shadow-inner cursor-crosshair touch-none"
+              style={{ 
+                  borderColor: '#e9ecef', 
+                  borderStyle: 'solid', 
+                  zIndex: 10,
+                  backgroundColor: 'transparent' // สำคัญมาก: ต้องโปร่งแสงเพื่อให้เห็นจุดข้างหลัง
+              }}
               onMouseDown={startDrawing}
               onMouseMove={draw}
               onMouseUp={stopDrawing}
@@ -136,52 +157,77 @@ export default function ClockDrawingTest() {
               onTouchEnd={stopDrawing}
             />
 
+            {/* 3. Loading Overlay */}
             {isLoading && (
-              <div className="absolute inset-0 z-20 bg-white/80 flex items-center justify-center rounded-xl">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+              <div className="position-absolute d-flex flex-column align-items-center justify-content-center rounded-circle"
+                  style={{ width: "320px", height: "320px", backgroundColor: "rgba(255,255,255,0.9)", zIndex: 30 }}>
+                <div className="spinner-border text-success mb-3" role="status"></div>
+                <span className="fw-bold text-success">AI กำลังวิเคราะห์...</span>
               </div>
             )}
           </div>
 
-          {/* Buttons */}
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={clearCanvas}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 rounded-xl text-slate-600 font-semibold hover:bg-slate-50 transition-colors"
-            >
-              <RefreshCcw size={18} /> ล้างหน้าจอ
-            </button>
-            <button
-              onClick={saveDrawing}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 rounded-xl text-white font-semibold hover:bg-indigo-700 shadow-md transition-all active:scale-95"
-            >
-              <Send size={18} /> ส่งคำตอบ
-            </button>
+          {/* Action Buttons */}
+          <div className="row g-3">
+            <div className="col-6">
+              <button
+                onClick={clearCanvas}
+                disabled={isLoading}
+                className="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold d-flex align-items-center justify-center gap-2"
+              >
+                <RefreshCcw size={18} /> ล้างกระดาน
+              </button>
+            </div>
+            <div className="col-6">
+              <button
+                onClick={saveDrawing}
+                disabled={isLoading}
+                className="btn btn-primary w-100 py-3 rounded-pill fw-bold d-flex align-items-center justify-center gap-2 shadow"
+              >
+                <Send size={18} /> ส่งวิเคราะห์
+              </button>
+            </div>
           </div>
 
-          {/* Result Section (เหมือนเดิม) */}
+          {/* Interpretation Result */}
           {result && result.status === "success" && (
-             <div className={`mt-8 p-4 rounded-xl border-2 ${result.prediction === 1 ? "bg-amber-50 border-amber-200" : "bg-emerald-50 border-emerald-200"}`}>
-                <div className="flex items-start gap-3">
-                    {result.prediction === 1 ? <AlertCircle className="text-amber-500 mt-1" /> : <CheckCircle2 className="text-emerald-500 mt-1" />}
-                    <div>
-                        <h4 className="font-bold text-slate-800 text-lg">ผลการวิเคราะห์</h4>
-                        <p className={`text-sm mt-1 font-medium ${result.prediction === 1 ? "text-amber-700" : "text-emerald-700"}`}>
-                            {result.interpretation}
-                        </p>
-                    </div>
+            <div className={`mt-8 animate__animated animate__fadeIn`}>
+              <div className={`prediction-box p-4 border-start border-5`} 
+                   style={{ borderColor: result.prediction === 1 ? '#ffc107' : 'var(--color-2)' }}>
+                <div className="d-flex gap-3">
+                  <div className="mt-1">
+                    {result.prediction === 1 ? 
+                      <AlertCircle className="text-warning" size={28} /> : 
+                      <CheckCircle2 style={{ color: 'var(--color-2)' }} size={28} />
+                    }
+                  </div>
+                  <div className="flex-grow-1">
+                    <h4 className="fw-bold mb-1 text-dark">สรุปผลการทดสอบ</h4>
+                    <p className="mb-0 text-secondary" style={{ fontSize: '1.1rem' }}>
+                      {result.interpretation}
+                    </p>
+                  </div>
                 </div>
+
                 {result.debug_image && (
-                    <div className="mt-4">
-                        <p className="text-xs text-slate-400 mb-1 uppercase tracking-wider font-bold">AI View (Processed)</p>
-                        <img src={result.debug_image} alt="Debug" className="rounded-lg border border-slate-200 w-full" />
+                  <div className="mt-4 pt-4 border-top border-light">
+                    <p className="text-uppercase fw-bold text-muted mb-2" style={{ fontSize: '0.7rem', letterSpacing: '1px' }}>
+                      AI Computer Vision Analysis
+                    </p>
+                    <div className="rounded-4 overflow-hidden border shadow-sm">
+                      <img src={result.debug_image} alt="Debug" className="img-fluid w-100" />
                     </div>
+                  </div>
                 )}
-             </div>
+              </div>
+            </div>
           )}
         </div>
+        
+        <footer className="text-center mt-10 text-muted small">
+          การวิเคราะห์นี้เป็นเพียงการประเมินเบื้องต้นโดย AI<br/>
+          &copy; 2026 NeuralyzeFit Health Technology
+        </footer>
       </div>
     </div>
   );
