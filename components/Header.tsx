@@ -23,7 +23,7 @@ export default function Header() {
   return (
     <nav className="navbar navbar-expand bg-white shadow-sm">
       <div className="container">
-        <span className="navbar-brand fw-bold">Health AI</span>
+        <span className="navbar-brand fw-bold">NeuralyzeFit</span>
 
         <div className="navbar-nav ms-auto">
           {navItem("/", "Obesity Predict")}

@@ -65,7 +65,7 @@ export default function FormPage() {
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
       <div className="card card-custom p-4 w-100" style={{ maxWidth: 420 }}>
-        <h3 className="text-center mb-4 fw-bold">Health Predictor</h3>
+        <h3 className="text-center mb-4 fw-bold">Obesity Predictor</h3>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -74,6 +74,7 @@ export default function FormPage() {
               name="Age"
               type="number"
               className="form-control"
+              placeholder="16"
               onChange={handleChange}
               required
             />
@@ -86,6 +87,7 @@ export default function FormPage() {
               type="number"
               step="0.01"
               className="form-control"
+              placeholder="165"
               onChange={handleChange}
               required
             />
@@ -98,6 +100,7 @@ export default function FormPage() {
               type="number"
               step="0.1"
               className="form-control"
+              placeholder="50"
               onChange={handleChange}
               required
             />
