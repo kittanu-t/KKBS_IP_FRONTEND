@@ -79,7 +79,7 @@ export default function ClockDrawingTest() {
     const image = canvas.toDataURL("image/png");
 
     try {
-      const res = await fetch("http://localhost:2569/analyze-clock", {
+      const res = await fetch("https://obesity-clock-api.onrender.com/analyze-clock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image }),
